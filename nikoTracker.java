@@ -71,7 +71,8 @@ class Main {
         float totalAmount = 0;
     
         // Display non-subscription items
-        System.out.println("\nItem Name           Item Price");
+        System.out.println("=======================================================");
+        System.out.println("[Item Name           Item Price]");
         System.out.println("=======================================================");
         for (Item item : currentUser.items) {
             if (!item.isSubscription) {
@@ -79,10 +80,9 @@ class Main {
                 totalAmount += item.itemPrice;
             }
         }
+        // Display Subscription items
         System.out.println("=======================================================");
-    
-        // Display subscription items
-        System.out.println("\nSubscription Name           Subscription Price");
+        System.out.println("[Subscription Name           Subscription Price]");
         System.out.println("=======================================================");
         for (Item item : currentUser.items) {
             if (item.isSubscription) {
@@ -97,6 +97,7 @@ class Main {
         System.out.printf("Budget:         %.2f\n", currentUser.budget);
         System.out.printf("Total Expenses: %.2f\n", totalAmount);
         System.out.printf("Budget Left:    %.2f\n", budgetLeft);
+        System.out.println("=======================================================");
     }
     static void deleteAllItems() {
         currentUser.items.clear();
@@ -153,22 +154,47 @@ class Main {
                         int subChoice;
                         do {
                             System.out.println("\n[EXPENSE TRACKER]");
-                            System.out.println("[2] Add Item");
-                            System.out.println("[3] Delete Item");
-                            System.out.println("[5] Display Items");
-                            System.out.println("[6] Delete All Items");
-                            System.out.println("[7] Log Out");
+                            System.out.println("[1] Add Item");
+                            System.out.println("[2] Delete Item");
+                            System.out.println("[3] Display Items");
+                            System.out.println("[4] Delete All Items");
+                            System.out.println("[5] Log Out");
                             System.out.print("Input Choice: ");
                             subChoice = scanner.nextInt();
                             scanner.nextLine(); // Consume newline
                             switch (subChoice) {
-                                case 2:
+                                case 1:
                                     System.out.print("Enter your Budget: ");
-                                    currentUser.budget = scanner.nextFloat();
-                                    scanner.nextLine();
-
+                                     while(true) {
+                                        try {
+                                            currentUser.Budget = scan.nextFloat();
+                                            if(currentUser.Budget > 0) {
+                                                break;
+                                            } else {
+                                                addItemUI();
+                                                System.out.print("Enter a valid number: ");
+                                            }
+                                        } catch (InputMismatchException e) {
+                                            addItemUI();
+                                            System.out.print("Enter a valid number: ");
+                                            scan.next();
+                                        }
+                                    }
+                                    scan.nextLine();
+                                    
                                     System.out.print("Enter How many items you want to add: ");
-                                    int iteration = scanner.nextInt();
+                                    while (true){
+                                        try{
+                                            int iteration = scanner.nextInt();
+                                            if(iteration > 0) {
+                                                break;
+                                            } else {
+                                                System.out.println("Enter a valid number:");
+                                                scan.next();
+                                            }
+                                        }
+                                    }
+                                    
                                     scanner.nextLine();
                                     
                                     if (iteration > 0) {
@@ -182,6 +208,7 @@ class Main {
                                     
                                             if (isSubscription) {
                                                 System.out.print("Enter Monthly Payment: ");
+                                                
                                                 float itemPrice = scanner.nextFloat();
                                                 System.out.print("Enter Subscription Duration (in months): ");
                                                 int itemSub = scanner.nextInt();
@@ -197,24 +224,24 @@ class Main {
                                     }
 
                                     break;
-                                case 3:
+                                case 2:
                                     System.out.print("Enter Expense Name to Delete: ");
                                     String itemName = scanner.nextLine();
                                     deleteItem(itemName);
                                     break;
-                                case 5:
+                                case 3:
                                     displayItems();
                                     break;
-                                case 6:
+                                case 4:
                                     deleteAllItems();
                                     break;
-                                case 7:
+                                case 5:
                                     logOut();
                                     break;
                                 default:
                                     System.out.println("Invalid Choice, Please tryl again");
                             }
-                        } while (subChoice != 7);
+                        } while (subChoice != 5);
                     }
                     break;
 
