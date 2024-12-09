@@ -34,13 +34,17 @@ class Main {
     static User currentUser = null;
 
     static void addItem(String itemName, float itemPrice, int itemSub, boolean isSubscription) {
-        if (currentUser.items.size() >= MAX_ITEM) {
-            System.out.println("Invalid, Item Limit Reached. Please Try Again");
-            return;
-        }
-        currentUser.items.add(new Item(itemName, itemPrice, itemSub, isSubscription));
-        System.out.println("[Item Added Successfully]");
+    if (currentUser.items.size() >= MAX_ITEM) {
+        System.out.println("Invalid, Item Limit Reached. Please Try Again");
+        return;
     }
+
+    // Add the item to the current user's list
+    currentUser.items.add(new Item(itemName, itemPrice, itemSub, isSubscription));
+    System.out.println("[Item Added Successfully]");
+}
+
+
 
     static void deleteItem(String itemName) {
         Item toDelete = null;
@@ -57,34 +61,43 @@ class Main {
             System.out.println("Item Not Found, Please Try Again");
         }
     }
-
     static void displayItems() {
         System.out.println("\nDisplaying Table...");
         if (currentUser.items.isEmpty()) {
             System.out.println("No Expenses recorded.");
             return;
         }
-
+    
         float totalAmount = 0;
-        System.out.printf("\n%-20s%-10s\n", "Item Name", "Item Price");
-        System.out.println("==============================");
-
+    
+        // Display non-subscription items
+        System.out.println("\nItem Name           Item Price");
+        System.out.println("=======================================================");
+        for (Item item : currentUser.items) {
+            if (!item.isSubscription) {
+                System.out.printf("%-20s%-15.2f\n", item.itemName, item.itemPrice);
+                totalAmount += item.itemPrice;
+            }
+        }
+        System.out.println("=======================================================");
+    
+        // Display subscription items
+        System.out.println("\nSubscription Name           Subscription Price");
+        System.out.println("=======================================================");
         for (Item item : currentUser.items) {
             if (item.isSubscription) {
-                System.out.printf("%-20s%-10.2f %d/Month\n", item.itemName, item.itemPrice, item.itemSub);
-            } else {
-                System.out.printf("%-20s%-10.2f\n", item.itemName, item.itemPrice);
+                System.out.printf("%-30s%.2f/month\n", item.itemName, item.itemPrice);
+                totalAmount += item.itemPrice * item.itemSub; // Total cost for subscriptions
             }
-            totalAmount += item.itemPrice;
         }
-        
+    
+        // Display budget details
         float budgetLeft = currentUser.budget - totalAmount;
-        System.out.println("==============================");
+        System.out.println("=======================================================");
         System.out.printf("Budget:         %.2f\n", currentUser.budget);
         System.out.printf("Total Expenses: %.2f\n", totalAmount);
         System.out.printf("Budget Left:    %.2f\n", budgetLeft);
     }
-
     static void deleteAllItems() {
         currentUser.items.clear();
         System.out.println("All items have been deleted");
@@ -164,19 +177,25 @@ class Main {
                                             String itemName = scanner.nextLine();
                                             System.out.print("Is this item a Subscription? [1] Yes  [2] No: ");
                                             int ynChoice = scanner.nextInt();
+                                            scanner.nextLine();
                                             boolean isSubscription = (ynChoice == 1);
-                                            float itemSub = 0;
+                                    
                                             if (isSubscription) {
                                                 System.out.print("Enter Monthly Payment: ");
-                                                itemSub = scanner.nextInt();
-                                                scanner.nextLine();
+                                                float itemPrice = scanner.nextFloat();
+                                                System.out.print("Enter Subscription Duration (in months): ");
+                                                int itemSub = scanner.nextInt();
+                                                scanner.nextLine(); // Consume newline
+                                                addItem(itemName, itemPrice, itemSub, true);
                                             } else {
-                                            System.out.print("Enter Expense Price: ");
-                                            float itemPrice = scanner.nextFloat();
-                                            addItem(itemName, itemPrice, itemSub, isSubscription);
+                                                System.out.print("Enter Expense Price: ");
+                                                float itemPrice = scanner.nextFloat();
+                                                scanner.nextLine(); // Consume newline
+                                                addItem(itemName, itemPrice, 0, false);
                                             }
                                         }
                                     }
+
                                     break;
                                 case 3:
                                     System.out.print("Enter Expense Name to Delete: ");
@@ -193,9 +212,9 @@ class Main {
                                     logOut();
                                     break;
                                 default:
-                                    System.out.println("Invalid Choice, Please try again");
+                                    System.out.println("Invalid Choice, Please tryl again");
                             }
-                        } while (subChoice != 8);
+                        } while (subChoice != 7);
                     }
                     break;
 
