@@ -1,0 +1,236 @@
+import java.util.*;
+
+public class Main {
+    public static Scanner scan = new Scanner(System.in);
+    static final int MAX_ITEM = 100;
+
+    static class User {
+        String name;
+        String password;
+        float budget;
+        ArrayList<Item> items = new ArrayList<>(); // Lists multiple items
+
+        User(String name, String password) {
+            this.name = name;
+            this.password = password;
+        }
+    }
+
+    static class Item {
+        String itemName;
+        float itemPrice;
+        int itemSub; // Subscription duration, 0 if not a subscription
+        boolean isSubscription;
+
+        Item(String name, float price, int sub, boolean isSubscription) {
+            this.itemName = name;
+            this.itemPrice = price;
+            this.itemSub = sub;
+            this.isSubscription = isSubscription;
+        }
+    }
+
+    static ArrayList<User> users = new ArrayList<>();
+    static User currentUser = null;
+
+    static void displayUI() {
+        System.out.println("=".repeat(41));
+        System.out.println("[   Welcome to Expense Tracker System   ]");
+        System.out.println("=".repeat(41));
+        System.out.println("[1] Log in");
+        System.out.println("[2] Register");
+        System.out.println("[3] Exit Program\n");
+    }
+
+    static void logIn(String userName, String userPassword) {
+        for (User user : users) {
+            if (user.name.equals(userName) && user.password.equals(userPassword)) {
+                currentUser = user;
+                System.out.println("-- Successfully Logged In --");
+                return;
+            }
+        }
+        System.out.println("-- Invalid User Credentials --");
+    }
+
+    static void registerUser(String newName, String newPassword) {
+        for (User user : users) {
+            if (user.name.equals(newName)) {
+                System.out.println("-- Username already exists. Please try a different username --");
+                return;
+            }
+        }
+        users.add(new User(newName, newPassword));
+        System.out.println("-- User Registered Successfully --");
+    }
+
+    static void addItem(String itemName, float itemPrice, int itemSub, boolean isSubscription) {
+        if (currentUser.items.size() >= MAX_ITEM) {
+            System.out.println("Invalid, Item Limit Reached. Please Try Again");
+            return;
+        }
+        currentUser.items.add(new Item(itemName, itemPrice, itemSub, isSubscription));
+        System.out.println("[Item Added Successfully]");
+    }
+
+    static void deleteItem(String itemName) {
+        Item toDelete = null;
+        for (Item item : currentUser.items) {
+            if (item.itemName.equals(itemName)) {
+                toDelete = item;
+                break;
+            }
+        }
+        if (toDelete != null) {
+            currentUser.items.remove(toDelete);
+            System.out.println("Expense Deleted Successfully");
+        } else {
+            System.out.println("Item Not Found, Please Try Again");
+        }
+    }
+
+    static void displayItems() {
+        System.out.println("\nDisplaying Expenses...");
+        if (currentUser.items.isEmpty()) {
+            System.out.println("No Expenses recorded.");
+            return;
+        }
+
+        float totalAmount = 0;
+        System.out.println("=======================================================");
+        System.out.println("[Item Name           Item Price]");
+        System.out.println("=======================================================");
+        for (Item item : currentUser.items) {
+            if (!item.isSubscription) {
+                System.out.printf("%-20s%-15.2f\n", item.itemName, item.itemPrice);
+                totalAmount += item.itemPrice;
+            }
+        }
+
+        System.out.println("=======================================================");
+        System.out.println("[Subscription Name           Subscription Price]");
+        System.out.println("=======================================================");
+        for (Item item : currentUser.items) {
+            if (item.isSubscription) {
+                System.out.printf("%-30s%.2f/month\n", item.itemName, item.itemPrice);
+                totalAmount += item.itemPrice * item.itemSub;
+            }
+        }
+
+        float budgetLeft = currentUser.budget - totalAmount;
+        System.out.println("=======================================================");
+        System.out.printf("Budget:         %.2f\n", currentUser.budget);
+        System.out.printf("Total Expenses: %.2f\n", totalAmount);
+        System.out.printf("Budget Left:    %.2f\n", budgetLeft);
+        System.out.println("=======================================================");
+    }
+
+    static void deleteAllItems() {
+        currentUser.items.clear();
+        System.out.println("All items have been deleted");
+    }
+
+    public static void main(String[] args) {
+        int choice;
+
+        do {
+            displayUI();
+            System.out.print("Choice: ");
+            choice = scan.nextInt();
+            scan.nextLine(); // Consume newline
+
+            switch (choice) {
+                case 1 -> {
+                    System.out.print("Enter User Name: ");
+                    String userName = scan.nextLine();
+                    System.out.print("Enter Password: ");
+                    String userPassword = scan.nextLine();
+                    logIn(userName, userPassword);
+                    if (currentUser != null) {
+                        int subChoice;
+                        do {
+                            System.out.println("\n[EXPENSE TRACKER]");
+                            System.out.println("[1] Add Item");
+                            System.out.println("[2] Delete Item");
+                            System.out.println("[3] Display Items");
+                            System.out.println("[4] Delete All Items");
+                            System.out.println("[5] Log Out");
+                            System.out.print("Choice: ");
+                            subChoice = scan.nextInt();
+                            scan.nextLine();
+
+                            switch (subChoice) {
+                                case 1 -> {
+                                    System.out.print("Enter Budget: ");
+                                    currentUser.budget = scan.nextFloat();
+                                    scan.nextLine();
+                                    int iteration = 0;
+                                    System.out.print("Enter how many items you want to add: ");
+                                    while(true) {
+                                        try {
+                                            iteration = scan.nextInt();
+                                            if(iteration > 0) {
+                                                break;
+                                            } else {
+                                                addItemUI();
+                                                System.out.print("Enter how many items you want to add: ");
+                                                System.out.print("Enter a valid number: ");
+                                            }
+                                        } catch (InputMismatchException e) {
+                                            addItemUI();
+                                            System.out.print("Enter how many items you want to add: ");
+                                            System.out.print("Enter a valid number: ");
+                                            scan.next();
+                                        }
+                                    }
+                                    scan.nextLine();
+                                    
+                                    if (iteration > 0) {
+                                        for (int i = 0; i < iteration; i++){
+    
+                                        System.out.print("Enter Expense Name: ");
+                                        String itemName = scan.nextLine();
+                                        System.out.print("Is this item a Subscription? [1] Yes  [2] No: ");
+                                        boolean isSubscription = scan.nextInt() == 1;
+                                        scan.nextLine();
+    
+                                        if (isSubscription) {
+                                            System.out.print("Enter Monthly Payment: ");
+                                            float itemPrice = scan.nextFloat();
+                                            System.out.print("Enter Subscription Duration (months): ");
+                                            int itemSub = scan.nextInt();
+                                            scan.nextLine();
+                                            addItem(itemName, itemPrice, itemSub, true);
+                                        } else {
+                                            System.out.print("Enter Expense Price: ");
+                                            float itemPrice = scan.nextFloat();
+                                            scan.nextLine();
+                                            addItem(itemName, itemPrice, 0, false);
+                                        }
+                                    }
+                                }
+                                case 2 :
+                                    System.out.print("Enter Expense Name to Delete: ");
+                                    String itemName = scan.nextLine();
+                                    deleteItem(itemName):
+                                case 3 -> displayItems();
+                                case 4 -> deleteAllItems();
+                                case 5 -> System.out.println("Logging out...");
+                                default -> System.out.println("Invalid Choice");
+                            }
+                        } while (subChoice != 5);
+                    }
+                }
+                case 2 -> {
+                    System.out.print("Enter User Name: ");
+                    String userName = scan.nextLine();
+                    System.out.print("Enter Password: ");
+                    String userPassword = scan.nextLine();
+                    registerUser(userName, userPassword);
+                }
+                case 3 -> System.out.println("Thank you for using the Expense Tracker!");
+                default -> System.out.println("Invalid Choice, Please try again");
+            }
+        } while (choice != 3);
+    }
+}
