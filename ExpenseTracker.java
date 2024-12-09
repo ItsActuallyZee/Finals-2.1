@@ -22,16 +22,12 @@ public class ExpenseTracker {
         float itemPrice;
         int itemSub; // Subscription duration, 0 if not a subscription
         boolean isSubscription; // Flag to check if it's a subscription
-        int itemMonth, itemDay, itemYear;
-        
-        Item(String name, float price, int sub, boolean isSubscription, int itemMonth, int itemDay, int itemYear) {
+
+        Item(String name, float price, int sub, boolean isSubscription) {
             this.itemName = name;
             this.itemPrice = price;
             this.itemSub = sub;
             this.isSubscription = isSubscription;
-            this.itemMonth = itemMonth;
-            this.itemDay = itemDay;
-            this.itemYear = itemYear;
         }
     }
 
@@ -58,6 +54,7 @@ public class ExpenseTracker {
         System.out.println("-- Invalid User Credentials --");
     }
     static void logInUI() {
+        System.out.print("\033\143");
         System.out.println("=".repeat(41)); // == PATTERN
         System.out.println("[   Welcome to Expense Tracker System   ]");
         System.out.println("=".repeat(41));
@@ -65,7 +62,7 @@ public class ExpenseTracker {
         System.out.println("[2] Delete Item");
         System.out.println("[3] Display Items");
         System.out.println("[4] Delete All Items");
-        System.out.println("[5] Log Out");
+        System.out.println("[5] Log Out\n");
     }
     
     static void registerUser(String newName, String newPassword) {
@@ -91,8 +88,80 @@ public class ExpenseTracker {
             System.out.println("Invalid, Item Limit Reached. Please Try Again");
             return;
         }
-        //currentUser.items.add(new Item(itemName, itemPrice, itemSub, isSubscription));
-        System.out.println("[Item Added Successfully]");
+    
+        // Add the item to the current user's list
+        currentUser.items.add(new Item(itemName, itemPrice, itemSub, isSubscription));
+        addItemUI();
+        System.out.println("-- Item Added Successfully --");
+    }
+
+    static void deleteItem(String itemName) {
+        Item toDelete = null;
+        for (Item item : currentUser.items) {
+            if (item.itemName.equals(itemName)) {
+                toDelete = item;
+                break;
+            }
+        }
+        if (toDelete != null) {
+            currentUser.items.remove(toDelete);
+            logInUI();
+            System.out.println("-- Expense Deleted Successfully --");
+        } else {
+            logInUI();
+            System.out.println("-- Item Not Found, Please Try Again --");
+        }
+    }
+    static void deleteItemUI() {
+        System.out.print("\033\143");
+        System.out.println("=".repeat(41)); // == PATTERN
+        System.out.println("[\t      DELETE ITEM\t        ]");
+        System.out.println("=".repeat(41));
+        
+    }
+
+    static void displayItems() {
+        System.out.print("\033\143");
+        System.out.println("Displaying Table...");
+        if (currentUser.items.isEmpty()) {
+            System.out.println("No Expenses recorded.");
+            return;
+        }
+    
+        float totalAmount = 0;
+    
+        // Display non-subscription items
+        System.out.println("=======================================================");
+        System.out.println("[Item Name           Item Price]");
+        System.out.println("=======================================================");
+        for (Item item : currentUser.items) {
+            if (!item.isSubscription) {
+                System.out.printf("%-20s%-15.2f\n", item.itemName, item.itemPrice);
+                totalAmount += item.itemPrice;
+            }
+        }
+        // Display Subscription items
+        System.out.println("=======================================================");
+        System.out.println("[Subscription Name           Subscription Price]");
+        System.out.println("=======================================================");
+        for (Item item : currentUser.items) {
+            if (item.isSubscription) {
+                System.out.printf("%-30s%.2f/month\n", item.itemName, item.itemPrice);
+                totalAmount += item.itemPrice * item.itemSub; // Total cost for subscriptions
+            }
+        }
+    
+        // Display budget details
+        float budgetLeft = currentUser.Budget - totalAmount;
+        System.out.println("=======================================================");
+        System.out.printf("Budget:         %.2f\n", currentUser.Budget);
+        System.out.printf("Total Expenses: %.2f\n", totalAmount);
+        System.out.printf("Budget Left:    %.2f\n", budgetLeft);
+        System.out.println("=======================================================");
+    }
+    
+    static void deleteAllItems() {
+        currentUser.items.clear();
     }
 
     public static void main (String[] args) {
@@ -143,8 +212,8 @@ public class ExpenseTracker {
                         System.out.println("-- Successfully Logged In --");
                         
                         do {
-                            if(subChoice > 3) {
-                            System.out.print("Invalid Choice: ");
+                            if(subChoice > 5 && subChoice == 0) {
+                                System.out.print("Invalid Choice: ");
                             } else {
                                 System.err.print("Choice: ");
                             }
@@ -153,7 +222,6 @@ public class ExpenseTracker {
                                     subChoice = scan.nextInt();
                                     break;
                                 } catch (InputMismatchException e) {
-                                    System.out.print("\033\143");
                                     logInUI();
                                     System.out.print("Enter a valid number: ");
                                     scan.next();
@@ -194,12 +262,12 @@ public class ExpenseTracker {
                                                 break;
                                             } else {
                                                 addItemUI();
-                                                System.out.print("Enter how many items you want to add: ");
+                                                System.out.println("Enter how many items you want to add?");
                                                 System.out.print("Enter a valid number: ");
                                             }
                                         } catch (InputMismatchException e) {
                                             addItemUI();
-                                            System.out.print("Enter how many items you want to add: ");
+                                            System.out.println("Enter how many items you want to add?");
                                             System.out.print("Enter a valid number: ");
                                             scan.next();
                                         }
@@ -211,43 +279,112 @@ public class ExpenseTracker {
                                             System.out.print("Enter Expense Name: ");
                                             itemName = scan.nextLine();
                                             
-                                            System.out.print("Is this item a Subscription? [1] Yes  [2] No: ");
+                                            System.out.print("Is this item a Subscription? [1] Yes [2] No: ");
                                             int ynChoice = 0;
                                             while(true) {
                                                 try {
                                                     ynChoice = scan.nextInt();
                                                     if(ynChoice > 2) {
                                                         addItemUI();
-                                                        System.out.print("Is this item a Subscription? [1] Yes  [2] No: ");
+                                                        System.out.println("Is this item a Subscription? [1] Yes [2] No");
                                                         System.out.print("Enter a valid number: ");
+                                                    } else {
                                                         break;
                                                     }
                                                 } catch (InputMismatchException e) {
                                                     addItemUI();
-                                                    System.out.print("Is this item a Subscription? [1] Yes  [2] No: ");
+                                                    System.out.println("Is this item a Subscription? [1] Yes [2] No");
                                                     System.out.print("Enter a valid number: ");
+                                                    scan.next();
                                                 }
                                             }
                                             isSubscription = (ynChoice == 1);
-                                            float itemSub = 0;
                                             if (isSubscription) {
+                                                float itemPrice = 0;
                                                 System.out.print("Enter Monthly Payment: ");
-                                                itemSub = scan.nextInt();
-                                                scan.nextLine();
-                                            } else {
-                                            System.out.print("Enter Expense Price: ");
-                                            float itemPrice = scan.nextFloat();
+                                                while(true) {
+                                                    try {
+                                                        itemPrice = scan.nextFloat();
+                                                        break;
+                                                    } catch (InputMismatchException e) {
+                                                        addItemUI();
+                                                        System.out.print("Enter Monthly Payment: ");
+                                                        scan.next();
+                                                    }
+                                                }
 
-                                            //addItem(itemName, itemPrice, itemSub, isSubscription);
+                                                int itemSub = 0;
+                                                System.out.print("Enter Subscription Duration (in months): ");
+                                                while(true) {
+                                                    try {
+                                                        itemSub = scan.nextInt();
+                                                        if(itemSub > 0) {
+                                                            break;
+                                                        } else {
+                                                            addItemUI();
+                                                            System.out.print("Enter Subscription Duration (in months): ");
+                                                        }
+                                                    } catch (InputMismatchException e) {
+                                                        addItemUI();
+                                                        System.out.print("Enter a valid Subscription Duration (in months): ");
+                                                        scan.next();
+                                                    }
+                                                }
+                                                scan.nextLine(); // Consume newline
+                                                addItem(itemName, itemPrice, itemSub, true);
+                                            } else {
+                                                float itemPrice = 0;
+                                                System.out.print("Enter Expense Price: ");
+                                                while(true) {
+                                                    try {
+                                                        itemPrice = scan.nextFloat();
+                                                        if(itemPrice > 0)
+                                                            break;
+                                                    } catch (InputMismatchException e) {
+                                                        addItemUI();
+                                                        System.out.print("Enter a valid Expense Price: ");
+                                                        scan.next();
+                                                    }
+                                                }
+                                                scan.nextLine(); // Consume newline
+                                                addItem(itemName, itemPrice, 0, false);
                                             }
                                         }
                                     }
+                                    logInUI();
+                                    System.out.println("-- Item Added Successfully --");
                                     break;
                                 case 2:
+                                    deleteItemUI();
+                                    System.out.print("Enter Expense Name to Delete: ");
+                                    itemName = scan.nextLine();
+                                    deleteItem(itemName);
                                     break;
                                 case 3:
+                                    displayItems();
+                                    int pressMe = 0;
+                                    System.out.print("Press '1' to continue: ");
+                                    while(true) {
+                                        try {
+                                            pressMe = scan.nextInt();
+                                            if(pressMe != 1) {
+                                                displayItems();
+                                                System.out.print("JUST PRESS '1': ");
+                                            } else {
+                                                break;
+                                            }
+                                        } catch (InputMismatchException e) {
+                                            displayItems();
+                                            System.out.print("JUST PRESS '1': ");
+                                            scan.next();
+                                        }
+                                    }
+                                    logInUI();
                                     break;
                                 case 4:
+                                    deleteAllItems();
+                                    logInUI();
+                                    System.out.println("-- All items have been deleted. --");
                                     break;
                                 case 5:
                                     System.out.print("\033\143");
