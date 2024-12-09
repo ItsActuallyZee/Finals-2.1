@@ -19,10 +19,14 @@ public class ExpenseTracker {
     static class Item {
         String itemName;
         float itemPrice;
+        int itemMonth, itemDay, itemYear;
 
-        Item(String itemName, float itemPrice) {
+        Item(String itemName, float itemPrice, int itemMonth, int itemDay, int itemYear) {
             this.itemName = itemName;
             this.itemPrice = itemPrice;
+            this.itemMonth = itemMonth;
+            this.itemDay = itemDay;
+            this.itemYear = itemYear;
         }
     }
 
@@ -37,7 +41,7 @@ public class ExpenseTracker {
         System.out.println("[2] Register");
         System.out.println("[3] Exit Program\n");
     }
-
+    
     static void logIn(String userName, String userPassword) {
         for(User existing : users) {
             if(existing.name.equals(userName) && existing.password.equals(userPassword)) {
@@ -48,7 +52,18 @@ public class ExpenseTracker {
         displayUI();
         System.out.println("-- Invalid User Credentials --");
     }
-
+    static void logInUI() {
+        System.out.println("=".repeat(41)); // == PATTERN
+        System.out.println("[   Welcome to Expense Tracker System   ]");
+        System.out.println("=".repeat(41));
+        System.out.println("[1] Enter Budget");
+        System.out.println("[2] Add Item");
+        System.out.println("[3] Delete Item");
+        System.out.println("[4] Display Items");
+        System.out.println("[5] Delete All Items");
+        System.out.println("[6] Log Out\n");
+    }
+    
     static void registerUser(String newName, String newPassword) {
         for(User existing : users) {
             if(existing.name.equals(newName)) {
@@ -102,6 +117,45 @@ public class ExpenseTracker {
                     System.out.print("\033\143");
                     logIn(userName, userPassword);
                     if(currentUser != null) {
+                        int subChoice = 0;
+                        logInUI();
+                        System.out.println("-- Successfully Logged In --");
+                        
+                        do {
+                            System.out.print("Choice: ");
+                            while(true) {
+                                try {
+                                    subChoice = scan.nextInt();
+                                    break;
+                                } catch (InputMismatchException e) {
+                                    System.out.print("\033\143");
+                                    displayUI();
+                                    System.out.print("Enter a valid number: ");
+                                    scan.next();
+                                }
+                            }
+                            scan.nextLine();
+
+                            switch(subChoice) {
+                                case 1:
+                                    break;
+                                case 2:
+                                    break;
+                                case 3:
+                                    break;
+                                case 4:
+                                    break;
+                                case 5:
+                                    break;
+                                case 6:
+                                    break;
+                                default:
+                                    System.out.print("\033\143");
+
+                                    break;
+                            }
+                        } while (subChoice != 5);
+                        
                         System.out.println("TITE");
                     }
                     break;
@@ -134,8 +188,7 @@ public class ExpenseTracker {
                     System.out.print("Invalid Choice: ");
                     choice = scan.nextInt();
             }
-            
         } while (choice != 3);
-        System.out.println("-- PROGRAM TERMINATED --");
+        System.out.println("\n-- PROGRAM TERMINATED --");
     }
 }
