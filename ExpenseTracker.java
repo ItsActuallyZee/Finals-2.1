@@ -84,7 +84,11 @@ public class ExpenseTracker {
         displayUI();
 
         do {
-            System.out.print("Choice: ");
+            if(choice > 3) {
+                System.out.print("Invalid Choice: ");
+            } else {
+                System.err.print("Choice: ");
+            }
             while (true) {
                 try {
                     choice = scan.nextInt();
@@ -113,7 +117,6 @@ public class ExpenseTracker {
                     System.out.print("Enter Password: ");
                     userPassword = scan.nextLine();
                     
-                    
                     System.out.print("\033\143");
                     logIn(userName, userPassword);
                     if(currentUser != null) {
@@ -122,20 +125,23 @@ public class ExpenseTracker {
                         System.out.println("-- Successfully Logged In --");
                         
                         do {
-                            System.out.print("Choice: ");
+                            if(subChoice > 3) {
+                            System.out.print("Invalid Choice: ");
+                            } else {
+                                System.err.print("Choice: ");
+                            }
                             while(true) {
                                 try {
                                     subChoice = scan.nextInt();
                                     break;
                                 } catch (InputMismatchException e) {
                                     System.out.print("\033\143");
-                                    displayUI();
+                                    logInUI();
                                     System.out.print("Enter a valid number: ");
                                     scan.next();
                                 }
                             }
                             scan.nextLine();
-
                             switch(subChoice) {
                                 case 1:
                                     break;
@@ -148,15 +154,15 @@ public class ExpenseTracker {
                                 case 5:
                                     break;
                                 case 6:
+                                    System.out.print("\033\143");
+                                    displayUI();
+                                    System.out.println("-- User Logged Out --");
                                     break;
                                 default:
                                     System.out.print("\033\143");
-
-                                    break;
+                                    logInUI();
                             }
-                        } while (subChoice != 5);
-                        
-                        System.out.println("TITE");
+                        } while (subChoice != 6);
                     }
                     break;
                 case 2: // REGISTER
@@ -185,8 +191,6 @@ public class ExpenseTracker {
                 default:
                     System.out.print("\033\143");
                     displayUI();
-                    System.out.print("Invalid Choice: ");
-                    choice = scan.nextInt();
             }
         } while (choice != 3);
         System.out.println("\n-- PROGRAM TERMINATED --");
