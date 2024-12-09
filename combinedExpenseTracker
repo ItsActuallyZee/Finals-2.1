@@ -42,6 +42,13 @@ public class Main {
         System.out.println("[3] Exit Program\n");
     }
 
+    static void addItemUI() {
+        System.out.print("\033\143");
+        System.out.println("=".repeat(41)); // == PATTERN
+        System.out.println("[\t        ADD ITEM\t        ]");
+        System.out.println("=".repeat(41));
+    }
+
     static void logIn(String userName, String userPassword) {
         for (User user : users) {
             if (user.name.equals(userName) && user.password.equals(userPassword)) {
