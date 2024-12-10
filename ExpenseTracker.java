@@ -2,8 +2,8 @@ import java.util.*;
 
 public class ExpenseTracker {
     public static Scanner scan = new Scanner(System.in);
-    static final int MAX_ACCOUNT = 5;
-    static final int MAX_ITEM = 5;
+    static final int MAX_ACCOUNT = 3;
+    static final int MAX_ITEM = 3;
 
     static class User {
         String name;
@@ -35,6 +35,7 @@ public class ExpenseTracker {
     static User currentUser = null;
     
     static void displayUI() {
+        System.out.print("\033\143");
         System.out.println("=".repeat(41)); // == PATTERN
         System.out.println("[   Welcome to Expense Tracker System   ]");
         System.out.println("=".repeat(41));
@@ -58,11 +59,12 @@ public class ExpenseTracker {
         System.out.println("=".repeat(41)); // == PATTERN
         System.out.println("[   Welcome to Expense Tracker System   ]");
         System.out.println("=".repeat(41));
-        System.out.println("[1] Add Item");
-        System.out.println("[2] Delete Item");
-        System.out.println("[3] Display Items");
-        System.out.println("[4] Delete All Items");
-        System.out.println("[5] Log Out\n");
+        System.out.println("[1] Set Budget");
+        System.out.println("[2] Add Item");
+        System.out.println("[3] Delete Item");
+        System.out.println("[4] Display Items");
+        System.out.println("[5] Delete All Items");
+        System.out.println("[6] Log Out\n");
     }
     
     static void registerUser(String newName, String newPassword) {
@@ -77,6 +79,21 @@ public class ExpenseTracker {
         displayUI();
         System.out.println("-- User Registered Successfully --");
     }
+    static void registerUI() {
+        System.out.print("\033\143");
+        System.out.println("=".repeat(41)); // == PATTERN
+        System.out.println("[\t      USER REGISTER\t        ]");
+        System.out.println("=".repeat(41));
+        
+    }
+
+    static void setBudgetUI() {
+        System.out.print("\033\143");
+        System.out.println("=".repeat(41)); // == PATTERN
+        System.out.println("[\t       SET BUDGET\t        ]");
+        System.out.println("=".repeat(41));
+    }
+
     static void addItemUI() {
         System.out.print("\033\143");
         System.out.println("=".repeat(41)); // == PATTERN
@@ -84,11 +101,6 @@ public class ExpenseTracker {
         System.out.println("=".repeat(41));
     }
     static void addItem(String itemName, float itemPrice, int itemSub, boolean isSubscription) {
-        if (currentUser.items.size() >= MAX_ITEM) {
-            System.out.println("Invalid, Item Limit Reached. Please Try Again");
-            return;
-        }
-    
         // Add the item to the current user's list
         currentUser.items.add(new Item(itemName, itemPrice, itemSub, isSubscription));
         addItemUI();
@@ -122,7 +134,6 @@ public class ExpenseTracker {
 
     static void displayItems() {
         System.out.print("\033\143");
-        System.out.println("Displaying Table...");
         if (currentUser.items.isEmpty()) {
             System.out.println("No Expenses recorded.");
             return;
@@ -132,31 +143,43 @@ public class ExpenseTracker {
     
         // Display non-subscription items
         System.out.println("=======================================================");
-        System.out.println("[Item Name           Item Price]");
+        System.out.println("[\t ITEM NAME          ITEM PRICE                 ]");
         System.out.println("=======================================================");
+        boolean hasRegularItems = false;
         for (Item item : currentUser.items) {
             if (!item.isSubscription) {
-                System.out.printf("%-20s%-15.2f\n", item.itemName, item.itemPrice);
+                hasRegularItems = true;
+                System.out.printf("  \t%-21s%-15.2f\n", item.itemName, item.itemPrice);
                 totalAmount += item.itemPrice;
+
             }
+        }
+        if (!hasRegularItems) {
+            System.out.printf("\t\t    -No Data-\n");
         }
         // Display Subscription items
         System.out.println("=======================================================");
-        System.out.println("[Subscription Name           Subscription Price]");
+        System.out.println("[\tSUBSCRIPTION NAME   SUBSCRIPTION PRICE        ]");
         System.out.println("=======================================================");
+        boolean hasSubscriptionItems = false;
         for (Item item : currentUser.items) {
             if (item.isSubscription) {
-                System.out.printf("%-30s%.2f/month\n", item.itemName, item.itemPrice);
+                hasSubscriptionItems = true;
+                System.out.printf("  \t%-21s%-7.2f/month\n", item.itemName, item.itemPrice);
                 totalAmount += item.itemPrice * item.itemSub; // Total cost for subscriptions
             }
         }
-    
+        if (!hasSubscriptionItems) {
+            System.out.printf("\t\t    -No Data-\n");
+        }
         // Display budget details
         float budgetLeft = currentUser.Budget - totalAmount;
         System.out.println("=======================================================");
-        System.out.printf("Budget:         %.2f\n", currentUser.Budget);
-        System.out.printf("Total Expenses: %.2f\n", totalAmount);
-        System.out.printf("Budget Left:    %.2f\n", budgetLeft);
+        System.out.println("[\t Summary                                  ]  ");
+        System.out.println("=======================================================");
+        System.out.printf("\tBudget:              %.2f\n", currentUser.Budget);
+        System.out.printf("\tTotal Expenses:      %.2f\n", totalAmount);
+        System.out.printf("\tBudget Left:         %.2f\n", budgetLeft);
         System.out.println("=======================================================");
     }
     
@@ -165,13 +188,13 @@ public class ExpenseTracker {
     }
 
     public static void main (String[] args) {
-        int choice = 0;
+        int choice = -1;
         
         System.out.print("\033\143"); //CLS
         displayUI();
 
         do {
-            if(choice > 3) {
+            if(choice > 3 || choice == 0) {
                 System.out.print("Invalid Choice: ");
             } else {
                 System.err.print("Choice: ");
@@ -181,7 +204,6 @@ public class ExpenseTracker {
                     choice = scan.nextInt();
                     break;
                 } catch (InputMismatchException e) {
-                    System.out.print("\033\143");
                     displayUI();
                     System.out.print("Enter a valid number: ");
                     scan.next();
@@ -206,13 +228,14 @@ public class ExpenseTracker {
                     
                     System.out.print("\033\143");
                     logIn(userName, userPassword);
+
                     if(currentUser != null) {
-                        int subChoice = 0;
+                        int subChoice = -1;
                         logInUI();
                         System.out.println("-- Successfully Logged In --");
                         
                         do {
-                            if(subChoice > 5 && subChoice == 0) {
+                            if(subChoice > 5 || subChoice == 0) {
                                 System.out.print("Invalid Choice: ");
                             } else {
                                 System.err.print("Choice: ");
@@ -232,9 +255,9 @@ public class ExpenseTracker {
                             String itemName;
                             boolean isSubscription;
                             switch(subChoice) {
-                                case 1: // ADD ITEM
-                                    addItemUI();
-
+                                case 1: // SET BUDGET
+                                    setBudgetUI();
+                                    
                                     System.out.print("Enter your Budget: ");
                                     while(true) {
                                         try {
@@ -242,17 +265,28 @@ public class ExpenseTracker {
                                             if(currentUser.Budget > 0) {
                                                 break;
                                             } else {
-                                                addItemUI();
+                                                setBudgetUI();
                                                 System.out.print("Enter a valid number: ");
                                             }
                                         } catch (InputMismatchException e) {
-                                            addItemUI();
+                                            setBudgetUI();
                                             System.out.print("Enter a valid number: ");
                                             scan.next();
                                         }
                                     }
                                     scan.nextLine();
-                                    
+
+                                    logInUI();
+                                    System.out.println("-- Budget Set Successfully --");
+                                    break;
+                                case 2: // ADD ITEM
+                                    addItemUI();
+                                    if (currentUser.items.size() >= MAX_ITEM) {
+                                        logInUI();
+                                        System.out.println("-- Item Limit Reached. Please Delete Items --");
+                                        break;
+                                    }
+
                                     int iteration = 0;
                                     System.out.print("Enter how many items you want to add: ");
                                     while(true) {
@@ -273,8 +307,14 @@ public class ExpenseTracker {
                                         }
                                     }
                                     scan.nextLine();
+
+                                    if(iteration > MAX_ITEM) {
+                                        logInUI();
+                                        System.out.println("-- Too Many Items! --");
+                                        break;                                        
+                                    }
                                     
-                                    if (iteration > 0) {
+                                    if(iteration > 0) {
                                         for (int i = 0; i < iteration; i++) {
                                             System.out.print("Enter Expense Name: ");
                                             itemName = scan.nextLine();
@@ -354,13 +394,13 @@ public class ExpenseTracker {
                                     logInUI();
                                     System.out.println("-- Item Added Successfully --");
                                     break;
-                                case 2:
+                                case 3:
                                     deleteItemUI();
                                     System.out.print("Enter Expense Name to Delete: ");
                                     itemName = scan.nextLine();
                                     deleteItem(itemName);
                                     break;
-                                case 3:
+                                case 4:
                                     displayItems();
                                     int pressMe = 0;
                                     System.out.print("Press '1' to continue: ");
@@ -381,12 +421,12 @@ public class ExpenseTracker {
                                     }
                                     logInUI();
                                     break;
-                                case 4:
+                                case 5:
                                     deleteAllItems();
                                     logInUI();
                                     System.out.println("-- All items have been deleted. --");
                                     break;
-                                case 5:
+                                case 6:
                                     System.out.print("\033\143");
                                     displayUI();
                                     System.out.println("-- User Logged Out --");
@@ -395,22 +435,23 @@ public class ExpenseTracker {
                                     System.out.print("\033\143");
                                     logInUI();
                             }
-                        } while (subChoice != 5);
+                        } while (subChoice != 6);
                     }
                     break;
                 case 2: // REGISTER
-                    System.out.print("\033\143");
-                    System.out.println("=".repeat(41)); // == PATTERN
-                    System.out.println("[\t      USER REGISTER\t        ]");
-                    System.out.println("=".repeat(41));
+                    if(users.size() > MAX_ACCOUNT) {
+                        displayUI();
+                        System.out.println("-- Max Users Reached! --");
+                        break;
+                    } else {
+                        registerUI();
+                        System.out.print("Enter User: ");
+                        userName = scan.nextLine();
 
-                    System.out.print("Enter User: ");
-                    userName = scan.nextLine();
-
-                    System.out.print("Enter Password: ");
-                    userPassword = scan.nextLine();
-
-                    System.out.print("\033\143");
+                        System.out.print("Enter Password: ");
+                        userPassword = scan.nextLine();
+                    }
+                    displayUI();
                     registerUser(userName, userPassword);
                     break;
                 case 3: // TERMINATE PROGRAM
@@ -422,7 +463,6 @@ public class ExpenseTracker {
                     System.out.println("Thank you for using our program!");
                     break;
                 default:
-                    System.out.print("\033\143");
                     displayUI();
             }
         } while (choice != 3);
