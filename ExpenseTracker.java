@@ -134,17 +134,14 @@ public class ExpenseTracker {
 
     static void displayItems() {
         System.out.print("\033\143");
-        if (currentUser.items.isEmpty()) {
-            System.out.println("No Expenses recorded.");
-            return;
-        }
+        
     
         float totalAmount = 0;
     
         // Display non-subscription items
-        System.out.println("=======================================================");
-        System.out.println("[\t ITEM NAME          ITEM PRICE                 ]");
-        System.out.println("=======================================================");
+        System.out.println("=".repeat(65));
+        System.out.println("[\t    ITEM NAME   \t][\t     ITEM PRICE      \t]");
+        System.out.println("=".repeat(65));
         boolean hasRegularItems = false;
         for (Item item : currentUser.items) {
             if (!item.isSubscription) {
@@ -158,9 +155,9 @@ public class ExpenseTracker {
             System.out.printf("\t\t    -No Data-\n");
         }
         // Display Subscription items
-        System.out.println("=======================================================");
-        System.out.println("[\tSUBSCRIPTION NAME   SUBSCRIPTION PRICE        ]");
-        System.out.println("=======================================================");
+        System.out.println("=".repeat(65));
+        System.out.println("[\tSUBSCRIPTION NAME\t][\tSUBSCRIPTION PRICE\t]");
+        System.out.println("=".repeat(65));
         boolean hasSubscriptionItems = false;
         for (Item item : currentUser.items) {
             if (item.isSubscription) {
@@ -174,13 +171,13 @@ public class ExpenseTracker {
         }
         // Display budget details
         float budgetLeft = currentUser.Budget - totalAmount;
-        System.out.println("=======================================================");
-        System.out.println("[\t Summary                                  ]  ");
-        System.out.println("=======================================================");
+        System.out.println("=".repeat(65));
+        System.out.println("[\t\t\t   SUMMARY\t\t\t\t]");
+        System.out.println("=".repeat(65));
         System.out.printf("\tBudget:              %.2f\n", currentUser.Budget);
         System.out.printf("\tTotal Expenses:      %.2f\n", totalAmount);
         System.out.printf("\tBudget Left:         %.2f\n", budgetLeft);
-        System.out.println("=======================================================");
+        System.out.println("=".repeat(65));
     }
     
     static void deleteAllItems() {
@@ -401,6 +398,11 @@ public class ExpenseTracker {
                                     deleteItem(itemName);
                                     break;
                                 case 4:
+                                    if (currentUser.items.isEmpty()) {
+                                        logInUI();
+                                        System.out.println("-- No Expenses recorded. --");
+                                        break;
+                                    }
                                     displayItems();
                                     int pressMe = 0;
                                     System.out.print("Press '1' to continue: ");
